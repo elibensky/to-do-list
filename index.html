@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            Document
+        </title>
+    </head>
+    <body>
+    <h1>
+        My Todo List
+    </h1>
+        <input type="string"required id="todo-text">
+        <button type="submit" id="todo-add">
+            add
+        </button>
+        <div id="todo-item">
+            <ol id="todo-list">
+
+            </ol>
+        </div>
+        <script>
+            const storedTodos = localStorage.getItem("todoItems");
+            let todoItems = JSON.parse(storedTodos) || [];
+            let jsonString = JSON.stringify(todoItems);
+            let removeBtn = document.createElement('button');
+            const inputBtn = document.querySelector("#todo-add");
+            const input = document.querySelector("#todo-text");
+            const todoList = document.querySelector("#todo-list");
+            removeBtn.textContent = "remove";
+            function addTodo(){
+                if(todoItems.includes(input.value) == false){
+                    let removeBtn = document.createElement('button');
+                    removeBtn.textContent = "remove";
+                    todoItems.push(input.value);
+                    let jsonString = JSON.stringify(todoItems);
+                    localStorage.setItem("todoItems", jsonString);
+                    newTodo = document.createElement("li");
+                    newTodo.textContent = `${todoItems[todoItems.length - 1]}`;
+                    newTodo.appendChild(removeBtn);
+                    todoList.appendChild(newTodo);
+                    removeBtn.addEventListener("click", removeTodo);
+                } else alert("Item already added in todo")
+            };
+            function listTodo(){
+                for(let i=0; i<todoItems.length; i++){
+                    let removeBtn = document.createElement('button');
+                    removeBtn.textContent = "remove";
+                    newTodo = document.createElement("li");
+                    newTodo.textContent = `${todoItems[i]}`;
+                    newTodo.appendChild(removeBtn);
+                    todoList.appendChild(newTodo);
+                    removeBtn.addEventListener("click", removeTodo);
+                };
+            };
+            function removeTodo(){
+                this.parentNode.remove();
+                let indexNum = todoItems.indexOf(this.parentNode.textContent);
+                todoItems.splice(indexNum, 1);
+                let jsonString = JSON.stringify(todoItems);
+                localStorage.setItem("todoItems", jsonString);
+            };
+            inputBtn.addEventListener("click", addTodo);
+            document.addEventListener('DOMContentLoaded', listTodo);
+        </script>
+    </body>
+</html>
