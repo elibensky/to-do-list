@@ -18,7 +18,7 @@
                   <h1 class="modal-title fs-5" id="exampleModalLabel">CONGRATULATIONS!</h1>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="yayText">
+                <div class="modal-body text-wrap" id="yayText">
                   YAY! You finished a to-do!
                 </div>
                 <div class="modal-footer">
@@ -34,11 +34,11 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Oh No!</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
-                  <div class="modal-body" id="sadText">
+                  <div class="modal-body text-wrap" id="sadText">
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancle</button>
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="deleteBtn">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="deleteBtn">Delete</button>
                   </div>
                 </div>
               </div>
@@ -60,86 +60,108 @@
             add
         </button>
       </div>
-        <div id="todo-item">
-            <ol class="vstack gap-3" id="todo-list">
+      <ol class="vstack gap-3" id="todo-list">
+
+      </ol>
+        <!--<div class="row justify-content-between" id="todo-item">
+          <div class="col">
+          </div>
+          <div class="col">
+            <ol class="vstack gap-3" id="finished-todo-list">
 
             </ol>
-        </div>
+          </div>-->
         <script>
-            const storedTodos = localStorage.getItem("todoItems");
-            let todoItems = JSON.parse(storedTodos) || [];
+          /*const storedFinishedTodos = localStorage.getItem("finishedTodos");
+          let finishedTodos = JSON.parse(storedFinishedTodos) || [];
+          let jsonStringFinished = JSON.stringify(finishedTodos);*/
+          const storedTodos = localStorage.getItem("todoItems");
+          let todoItems = JSON.parse(storedTodos) || [];
+          let jsonString = JSON.stringify(todoItems);
+          let removeBtn = document.createElement('button');
+          const inputBtn = document.querySelector("#todo-add");
+          const input = document.querySelector("#todo-text");
+          const todoList = document.querySelector("#todo-list");
+          //const finishedTodoList = document.querySelector("#finished-todo-list");
+          removeBtn.textContent = "remove";
+          function addTodo(){
+            if(todoItems.includes(input.value) == false){
+              let removeBtn = document.createElement('button');
+              removeBtn.textContent = "remove";
+              let finishedBtn = document.createElement('button');
+              finishedBtn.textContent = "finished";
+              todoItems.push(input.value);
+              let jsonString = JSON.stringify(todoItems);
+              localStorage.setItem("todoItems", jsonString);
+              newTodo = document.createElement("li");
+              newTodo.textContent = `${todoItems[todoItems.length - 1]}`;
+              newTodo.appendChild(removeBtn);
+              newTodo.appendChild(finishedBtn);
+              todoList.appendChild(newTodo);
+              removeBtn.classList.add("btn", "btn-danger", "mx-2");
+              removeBtn.addEventListener("click", removeTodo);
+              finishedBtn.classList.add("btn", "btn-success", "mx-2");
+              finishedBtn.addEventListener("click", finishedTodo);
+              finishedBtn.setAttribute('data-bs-toggle', "modal");
+              finishedBtn.setAttribute('data-bs-target', "#modal");
+              removeBtn.setAttribute('data-bs-toggle', "modal");
+              removeBtn.setAttribute('data-bs-target', "#modalRemove");
+            } else alert("Item already added in todo")
+          };
+          function listTodo(){
+            for(let i=0; i<todoItems.length; i++){
+              let removeBtn = document.createElement('button');
+              removeBtn.textContent = "remove";
+              let finishedBtn = document.createElement('button');
+              finishedBtn.textContent = "finished";
+              newTodo = document.createElement("li");
+              newTodo.textContent = `${todoItems[i]}`;
+              newTodo.appendChild(removeBtn);
+              newTodo.appendChild(finishedBtn);
+              todoList.appendChild(newTodo);
+              removeBtn.classList.add("btn", "btn-danger", "mx-2");
+              removeBtn.addEventListener("click", removeTodo);
+              finishedBtn.classList.add("btn", "btn-success", "mx-2");
+              finishedBtn.addEventListener("click", finishedTodo);
+              removeBtn.setAttribute('data-bs-toggle', "modal");
+              removeBtn.setAttribute('data-bs-target', "#modalRemove");
+            };
+          };
+          function listFinishedTodos(){
+            for(let i=0; i<finishedTodos.length; i++){
+              newFinishedTodo = document.createElement("li");
+              newFinishedTodo.textContent = `${finishedTodos[i]}`;
+              finishedTodoList.appendChild(newFinishedTodo);
+            };            
+          };
+          function removeTodo(){
+            this.parentNode.remove();
+            let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
+            let todoFinished = this.parentNode.textContent.slice(0, -14);
+            const modalRemove = document.querySelector("#sadText");
+            modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoFinished}!`;
+            todoItems.splice(indexNum, 1);
             let jsonString = JSON.stringify(todoItems);
-            let removeBtn = document.createElement('button');
-            const inputBtn = document.querySelector("#todo-add");
-            const input = document.querySelector("#todo-text");
-            const todoList = document.querySelector("#todo-list");
-            removeBtn.textContent = "remove";
-            function addTodo(){
-                if(todoItems.includes(input.value) == false){
-                    let removeBtn = document.createElement('button');
-                    removeBtn.textContent = "remove";
-                    let finishedBtn = document.createElement('button');
-                    finishedBtn.textContent = "finished";
-                    todoItems.push(input.value);
-                    let jsonString = JSON.stringify(todoItems);
-                    localStorage.setItem("todoItems", jsonString);
-                    newTodo = document.createElement("li");
-                    newTodo.textContent = `${todoItems[todoItems.length - 1]}`;
-                    newTodo.appendChild(removeBtn);
-                    newTodo.appendChild(finishedBtn);
-                    todoList.appendChild(newTodo);
-                    removeBtn.classList.add("btn", "btn-danger", "mx-2");
-                    removeBtn.addEventListener("click", removeTodo);
-                    finishedBtn.classList.add("btn", "btn-success", "mx-2");
-                    finishedBtn.addEventListener("click", finishedTodo);
-                    finishedBtn.setAttribute('data-bs-toggle', "modal");
-                    finishedBtn.setAttribute('data-bs-target', "#modal");
-                    removeBtn.setAttribute('data-bs-toggle', "modal");
-                    removeBtn.setAttribute('data-bs-target', "#modalRemove");
-                } else alert("Item already added in todo")
-            };
-            function listTodo(){
-                for(let i=0; i<todoItems.length; i++){
-                    let removeBtn = document.createElement('button');
-                    removeBtn.textContent = "remove";
-                    let finishedBtn = document.createElement('button');
-                    finishedBtn.textContent = "finished";
-                    newTodo = document.createElement("li");
-                    newTodo.textContent = `${todoItems[i]}`;
-                    newTodo.appendChild(removeBtn);
-                    newTodo.appendChild(finishedBtn);
-                    todoList.appendChild(newTodo);
-                    removeBtn.classList.add("btn", "btn-danger", "mx-2");
-                    removeBtn.addEventListener("click", removeTodo);
-                    finishedBtn.classList.add("btn", "btn-success", "mx-2");
-                    finishedBtn.addEventListener("click", finishedTodo);
-                    removeBtn.setAttribute('data-bs-toggle', "modal");
-                    removeBtn.setAttribute('data-bs-target', "#modalRemove");
-                };
-            };
-            function removeTodo(){
-                this.parentNode.remove();
-                let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
-                let todoFinished = this.parentNode.textContent.slice(0, -14);
-                const modalRemove = document.querySelector("#sadText");
-                modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoFinished}!`;
-                todoItems.splice(indexNum, 1);
-                let jsonString = JSON.stringify(todoItems);
-                localStorage.setItem("todoItems", jsonString);
-            };
-            function finishedTodo(){
-                this.parentNode.remove();
-                let indexNum = todoItems.indexOf(this.parentNode.textContent);
-                let todoFinished = this.parentNode.textContent.slice(0, -14);
-                const modal = document.querySelector("#yayText");
-                modal.textContent = `YAY! You finished ${todoFinished}!`;
-                todoItems.splice(indexNum, 1);
-                let jsonString = JSON.stringify(todoItems);
-                localStorage.setItem("todoItems", jsonString);
-                const body = document.querySelector('body');
-            };
-            inputBtn.addEventListener("click", addTodo);
-            document.addEventListener('DOMContentLoaded', listTodo);
+            localStorage.setItem("todoItems", jsonString);
+          };
+          function finishedTodo(){
+            this.parentNode.remove();
+            let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
+            let todoFinished = this.parentNode.textContent.slice(0, -14);
+            const modal = document.querySelector("#yayText");
+            modal.textContent = `YAY! You finished ${todoFinished}!`;
+            todoItems.splice(indexNum, 1);
+            let jsonString = JSON.stringify(todoItems);
+            localStorage.setItem("todoItems", jsonString);
+            /*let newFinishedTodo = document.createElement("li");
+            newFinishedTodo.textContent = `${todoFinished}`;
+            finishedTodoList.appendChild(newFinishedTodo);
+            finishedTodos.push(todoFinished);
+            let jsonStringFinished = JSON.stringify(finishedTodos);
+            localStorage.setItem("FinishedTodos", jsonStringFinished);*/
+          };
+          inputBtn.addEventListener("click", addTodo);
+          document.addEventListener('DOMContentLoaded', listTodo);
         </script>
     </body>
 </html>
