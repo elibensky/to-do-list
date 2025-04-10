@@ -18,7 +18,7 @@
                   <h1 class="modal-title fs-5" id="exampleModalLabel">CONGRATULATIONS!</h1>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" id="yayText">
                   YAY! You finished a to-do!
                 </div>
                 <div class="modal-footer">
@@ -106,6 +106,9 @@
             function finishedTodo(){
                 this.parentNode.remove();
                 let indexNum = todoItems.indexOf(this.parentNode.textContent);
+                let todoFinished = this.parentNode.textContent.slice(0, -14);
+                const modal = document.querySelector("#yayText");
+                modal.textContent = `YAY! You finished ${todoFinished}!`;
                 todoItems.splice(indexNum, 1);
                 let jsonString = JSON.stringify(todoItems);
                 localStorage.setItem("todoItems", jsonString);
