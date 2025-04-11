@@ -74,7 +74,8 @@
         <script>
           /*const storedFinishedTodos = localStorage.getItem("finishedTodos");
           let finishedTodos = JSON.parse(storedFinishedTodos) || [];
-          let jsonStringFinished = JSON.stringify(finishedTodos);*/
+          let jsonStringFinished = JSON.stringify(finishedTodos);
+          const finishedTodoList = document.querySelector("#finished-todo-list");*/
           const storedTodos = localStorage.getItem("todoItems");
           let todoItems = JSON.parse(storedTodos) || [];
           let jsonString = JSON.stringify(todoItems);
@@ -82,7 +83,8 @@
           const inputBtn = document.querySelector("#todo-add");
           const input = document.querySelector("#todo-text");
           const todoList = document.querySelector("#todo-list");
-          //const finishedTodoList = document.querySelector("#finished-todo-list");
+          const modalRemove = document.querySelector("#sadText");
+          deleteBtn = document.querySelector("#deleteBtn");
           removeBtn.textContent = "remove";
           function addTodo(){
             if(todoItems.includes(input.value) == false){
@@ -135,12 +137,17 @@
             };            
           };
           function removeTodo(){
-            this.parentNode.remove();
             let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
-            let todoFinished = this.parentNode.textContent.slice(0, -14);
-            const modalRemove = document.querySelector("#sadText");
-            modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoFinished}!`;
+            let todoDeleted = this.parentNode.textContent.slice(0, -14);
+            modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoDeleted}!`;
+            this.parentNode.id = `${todoDeleted}`;
+          };
+          function removeTodo2(){
+            let indexNum = todoItems.indexOf(modalRemove.textContent.slice(42, -1));
+            let todoDeleted = modalRemove.textContent.slice(42, -1);
             todoItems.splice(indexNum, 1);
+            let todoDeletedListItem = document.querySelector(`#${todoDeleted}`);
+            todoDeletedListItem.remove();
             let jsonString = JSON.stringify(todoItems);
             localStorage.setItem("todoItems", jsonString);
           };
@@ -161,6 +168,7 @@
             localStorage.setItem("FinishedTodos", jsonStringFinished);*/
           };
           inputBtn.addEventListener("click", addTodo);
+          deleteBtn.addEventListener("click", removeTodo2);
           document.addEventListener('DOMContentLoaded', listTodo);
         </script>
     </body>
