@@ -21,6 +21,9 @@
                 <div class="modal-body text-wrap" id="yayText">
                   YAY! You finished a to-do!
                 </div>
+                <video id="fireworks">
+                  <source src="fireworks.mp4" type="video/mp4">
+                </video>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -76,6 +79,7 @@
           let finishedTodos = JSON.parse(storedFinishedTodos) || [];
           let jsonStringFinished = JSON.stringify(finishedTodos);
           const finishedTodoList = document.querySelector("#finished-todo-list");*/
+          const fireworks = document.querySelector("#fireworks");
           const storedTodos = localStorage.getItem("todoItems");
           let todoItems = JSON.parse(storedTodos) || [];
           let jsonString = JSON.stringify(todoItems);
@@ -129,13 +133,13 @@
               removeBtn.setAttribute('data-bs-target', "#modalRemove");
             };
           };
-          function listFinishedTodos(){
+          /*function listFinishedTodos(){
             for(let i=0; i<finishedTodos.length; i++){
               newFinishedTodo = document.createElement("li");
               newFinishedTodo.textContent = `${finishedTodos[i]}`;
               finishedTodoList.appendChild(newFinishedTodo);
             };            
-          };
+          };*/
           function removeTodo(){
             let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
             let todoDeleted = this.parentNode.textContent.slice(0, -14);
@@ -160,6 +164,7 @@
             todoItems.splice(indexNum, 1);
             let jsonString = JSON.stringify(todoItems);
             localStorage.setItem("todoItems", jsonString);
+            fireworks.play();
             /*let newFinishedTodo = document.createElement("li");
             newFinishedTodo.textContent = `${todoFinished}`;
             finishedTodoList.appendChild(newFinishedTodo);
