@@ -81,7 +81,14 @@
           const finishedTodoList = document.querySelector("#finished-todo-list");*/
           const fireworks = document.querySelector("#fireworks");
           const storedTodos = localStorage.getItem("todoItems");
-          let todoItems = JSON.parse(storedTodos) || [];
+          let todoItems = JSON.parse(storedTodos) || [
+            {
+              listName: "My To-dos",
+              listItems: [],
+              createdOn:"<date/time>",
+              order:"1",
+            },
+          ];
           let jsonString = JSON.stringify(todoItems);
           let removeBtn = document.createElement('button');
           const inputBtn = document.querySelector("#todo-add");
@@ -91,16 +98,26 @@
           deleteBtn = document.querySelector("#deleteBtn");
           removeBtn.textContent = "remove";
           function addTodo(){
-            if(todoItems.includes(input.value) == false){
+            if(todoItems[0].listItems.includes(input.value) == false){
+              let newTodoObj = {
+                description:input.value,
+                createdOn: "date/time",
+                order: todoItems[0].listItems.length,
+                isFavorite: false,
+                finishedOn: "date/time",
+                dueOn: "date/time",
+                categoryId: 1,
+                startedOn: "date/time"
+              };
               let removeBtn = document.createElement('button');
               removeBtn.textContent = "remove";
               let finishedBtn = document.createElement('button');
               finishedBtn.textContent = "finished";
-              todoItems.push(input.value);
+              todoItems[0].listItems.push(newTodoObj);
               let jsonString = JSON.stringify(todoItems);
               localStorage.setItem("todoItems", jsonString);
               newTodo = document.createElement("li");
-              newTodo.textContent = `${todoItems[todoItems.length - 1]}`;
+              newTodo.textContent = `${newTodoObj.description}`;
               newTodo.appendChild(removeBtn);
               newTodo.appendChild(finishedBtn);
               todoList.appendChild(newTodo);
@@ -115,22 +132,27 @@
             } else alert("Item already added in todo")
           };
           function listTodo(){
-            for(let i=0; i<todoItems.length; i++){
-              let removeBtn = document.createElement('button');
-              removeBtn.textContent = "remove";
-              let finishedBtn = document.createElement('button');
-              finishedBtn.textContent = "finished";
-              newTodo = document.createElement("li");
-              newTodo.textContent = `${todoItems[i]}`;
-              newTodo.appendChild(removeBtn);
-              newTodo.appendChild(finishedBtn);
-              todoList.appendChild(newTodo);
-              removeBtn.classList.add("btn", "btn-danger", "mx-2");
-              removeBtn.addEventListener("click", removeTodo);
-              finishedBtn.classList.add("btn", "btn-success", "mx-2");
-              finishedBtn.addEventListener("click", finishedTodo);
-              removeBtn.setAttribute('data-bs-toggle', "modal");
-              removeBtn.setAttribute('data-bs-target', "#modalRemove");
+            if(todoItems[0] != undefined){
+              for(let i=0; i<todoItems[0].listItems.length; i++){
+                let removeBtn = document.createElement('button');
+                removeBtn.textContent = "remove";
+                let finishedBtn = document.createElement('button');
+                finishedBtn.textContent = "finished";
+                newTodo = document.createElement("li");
+                newTodo.textContent = `${todoItems[0].listItems[i].description}`;
+                newTodo.appendChild(removeBtn);
+                newTodo.appendChild(finishedBtn);
+                todoList.appendChild(newTodo);
+                removeBtn.classList.add("btn", "btn-danger", "mx-2");
+                removeBtn.addEventListener("click", removeTodo);
+                finishedBtn.classList.add("btn", "btn-success", "mx-2");
+                finishedBtn.addEventListener("click", finishedTodo);
+                finishedBtn.addEventListener("click", finishedTodo);
+                finishedBtn.setAttribute('data-bs-toggle', "modal");
+                finishedBtn.setAttribute('data-bs-target', "#modal");
+                removeBtn.setAttribute('data-bs-toggle', "modal");
+                removeBtn.setAttribute('data-bs-target', "#modalRemove");
+              };
             };
           };
           /*function listFinishedTodos(){
@@ -141,15 +163,15 @@
             };            
           };*/
           function removeTodo(){
-            let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
+            let indexNum = todoItems[0].listItems.indexOf(this.parentNode.textContent.slice(0, -14));
             let todoDeleted = this.parentNode.textContent.slice(0, -14);
             modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoDeleted}!`;
             this.parentNode.id = `${todoDeleted}`;
           };
           function removeTodo2(){
-            let indexNum = todoItems.indexOf(modalRemove.textContent.slice(42, -1));
+            let indexNum = todoItems[0].listItems.indexOf(modalRemove.textContent.slice(42, -1));
             let todoDeleted = modalRemove.textContent.slice(42, -1);
-            todoItems.splice(indexNum, 1);
+            todoItems[0].listItems.splice(indexNum, 1);
             let todoDeletedListItem = document.querySelector(`#${todoDeleted}`);
             todoDeletedListItem.remove();
             let jsonString = JSON.stringify(todoItems);
@@ -157,11 +179,11 @@
           };
           function finishedTodo(){
             this.parentNode.remove();
-            let indexNum = todoItems.indexOf(this.parentNode.textContent.slice(0, -14));
+            let indexNum = todoItems[0].listItems.indexOf(this.parentNode.textContent.slice(0, -14));
             let todoFinished = this.parentNode.textContent.slice(0, -14);
             const modal = document.querySelector("#yayText");
             modal.textContent = `YAY! You finished ${todoFinished}!`;
-            todoItems.splice(indexNum, 1);
+            todoItems[0].listItems.splice(indexNum, 1);
             let jsonString = JSON.stringify(todoItems);
             localStorage.setItem("todoItems", jsonString);
             fireworks.play();
