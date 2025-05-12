@@ -57,29 +57,23 @@
     <h1 class="display-1">
         My To-Do List
     </h1>
-    <div class="shadow input-group mb-3">
+    <form id="addForm" class="shadow input-group mb-3">
+      <!--<div class="shadow input-group mb-3">-->
         <input class="form-control" type="string"required id="todo-text">
         <button class="btn btn-success" type="submit"  id="todo-add">
-            add
+          add
         </button>
-      </div>
+      <!--</div>-->
+    </form>
       <ol class="vstack gap-3" id="todo-list">
 
       </ol>
-        <!--<div class="row justify-content-between" id="todo-item">
-          <div class="col">
-          </div>
-          <div class="col">
-            <ol class="vstack gap-3" id="finished-todo-list">
-
-            </ol>
-          </div>-->
         <script>
         </script>
         <script type="module">
           // Import the functions you need from the SDKs you need
-          import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-          import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+           import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+          import { getFirestore, collection, addDoc, onSnapshot, orderBy, query, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
           // TODO: Add SDKs for Firebase products that you want to use
           // https://firebase.google.com/docs/web/setup#available-libraries
         
@@ -94,52 +88,74 @@
             appId: "1:180144047262:web:061d806c78ed5ebcd2e78f",
             measurementId: "G-BZ2RCH1P0G"
           };
-        
+          initializeApp(firebaseConfig);
           // Initialize Firebase
           const app = initializeApp(firebaseConfig);
-          const analytics = getAnalytics(app);
-          /*const storedFinishedTodos = localStorage.getItem("finishedTodos");
-          let finishedTodos = JSON.parse(storedFinishedTodos) || [];
-          let jsonStringFinished = JSON.stringify(finishedTodos);
-          const finishedTodoList = document.querySelector("#finished-todo-list");*/
-          const fireworks = document.querySelector("#fireworks");
-          const storedTodos = localStorage.getItem("todoItems");
-          let todoItems = JSON.parse(storedTodos) || [
-            {
-              listName: "My To-dos",
-              listItems: [],
-              createdOn:"<date/time>",
-              order:"1",
-            },
-          ];
-          let jsonString = JSON.stringify(todoItems);
+          // Get a reference to the Firestore database
+          const db = getFirestore(app);
+
+
+
+
           let removeBtn = document.createElement('button');
           const inputBtn = document.querySelector("#todo-add");
           const input = document.querySelector("#todo-text");
           const todoList = document.querySelector("#todo-list");
           const modalRemove = document.querySelector("#sadText");
-          deleteBtn = document.querySelector("#deleteBtn");
+          const deleteBtn = document.querySelector("#deleteBtn");
           removeBtn.textContent = "remove";
-          function addTodo(){
-            if(todoItems[0].listItems.includes(input.value) == false){
+          function removeTodo(){
+            let todoDeleted = this.parentNode.textContent.slice(0, -14);
+            modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoDeleted}!`;
+            deleteBtn.name = this.parentNode.name;
+          };
+          window.removeTodo2 = async function(id){
+            try {
+                await deleteDoc(doc(db, 'To-Do List', id));
+            } catch (error) {
+                console.error("Error removing document: ", error);
+            }
+          };
+          function finishedTodo(){
+            removeTodo2(this.parentNode.name);
+            let todoFinished = this.parentNode.textContent.slice(0, -14);
+            const modal = document.querySelector("#yayText");
+            modal.textContent = `YAY! You finished ${todoFinished}!`;
+            fireworks.play();
+          };
+
+          inputBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              try {
+                await addDoc(collection(db, 'To-Do List'), {
+                  description:input.value,
+                  createdOn: "date/time",
+                  order:"0",
+                  isFavorite: false,
+                  finishedOn: "date/time",
+                  dueOn: "date/time",
+                  categoryId: 1,
+                  createdAt: serverTimestamp()
+                });
+                document.getElementById('addForm').reset();
+              } catch (error) {
+                console.error("Error adding document: ", error);
+              }
               let newTodoObj = {
-                description:input.value,
+                description: input.value,
                 createdOn: "date/time",
-                order: todoItems[0].listItems.length,
+                order: '0',
                 isFavorite: false,
                 finishedOn: "date/time",
                 dueOn: "date/time",
                 categoryId: 1,
-                startedOn: "date/time"
+                createdAt: serverTimestamp()
               };
               let removeBtn = document.createElement('button');
               removeBtn.textContent = "remove";
               let finishedBtn = document.createElement('button');
               finishedBtn.textContent = "finished";
-              todoItems[0].listItems.push(newTodoObj);
-              let jsonString = JSON.stringify(todoItems);
-              localStorage.setItem("todoItems", jsonString);
-              newTodo = document.createElement("li");
+              let newTodo = document.createElement("li");
               newTodo.textContent = `${newTodoObj.description}`;
               newTodo.appendChild(removeBtn);
               newTodo.appendChild(finishedBtn);
@@ -152,17 +168,36 @@
               finishedBtn.setAttribute('data-bs-target', "#modal");
               removeBtn.setAttribute('data-bs-toggle', "modal");
               removeBtn.setAttribute('data-bs-target', "#modalRemove");
-            } else alert("Item already added in todo")
+              newTodo.id = `${input.value}`;
+          });
+          function removeTodo1(){
+            removeTodo2(this.name)
           };
-          function listTodo(){
-            if(todoItems[0] != undefined){
-              for(let i=0; i<todoItems[0].listItems.length; i++){
+          const q = query(collection(db, 'To-Do List'), orderBy('createdAt', "desc"));
+          onSnapshot(q, (snapshot) => {
+            todoList.innerHTML = '';
+            snapshot.forEach((doc) => {
+              const todoItem = doc.data();
+              if(todoItem.description !== ""){
+                let newTodoObj = {
+                  description: input.value,
+                  createdOn: "date/time",
+                  order: '0',
+                  isFavorite: false,
+                  finishedOn: "date/time",
+                  dueOn: "date/time",
+                  categoryId: 1,
+                  createdAt: serverTimestamp()
+                };
                 let removeBtn = document.createElement('button');
                 removeBtn.textContent = "remove";
                 let finishedBtn = document.createElement('button');
                 finishedBtn.textContent = "finished";
-                newTodo = document.createElement("li");
-                newTodo.textContent = `${todoItems[0].listItems[i].description}`;
+                //todoItems[0].listItems.push(newTodoObj);
+                let newTodo = document.createElement("li");
+                newTodo.name = doc.id;
+                newTodo.textContent = `${newTodoObj.description}`;
+                newTodo.textContent = `${todoItem.description}`;
                 newTodo.appendChild(removeBtn);
                 newTodo.appendChild(finishedBtn);
                 todoList.appendChild(newTodo);
@@ -170,56 +205,14 @@
                 removeBtn.addEventListener("click", removeTodo);
                 finishedBtn.classList.add("btn", "btn-success", "mx-2");
                 finishedBtn.addEventListener("click", finishedTodo);
-                finishedBtn.addEventListener("click", finishedTodo);
                 finishedBtn.setAttribute('data-bs-toggle', "modal");
                 finishedBtn.setAttribute('data-bs-target', "#modal");
                 removeBtn.setAttribute('data-bs-toggle', "modal");
                 removeBtn.setAttribute('data-bs-target', "#modalRemove");
               };
-            };
-          };
-          /*function listFinishedTodos(){
-            for(let i=0; i<finishedTodos.length; i++){
-              newFinishedTodo = document.createElement("li");
-              newFinishedTodo.textContent = `${finishedTodos[i]}`;
-              finishedTodoList.appendChild(newFinishedTodo);
-            };            
-          };*/
-          function removeTodo(){
-            let indexNum = todoItems[0].listItems.indexOf(this.parentNode.textContent.slice(0, -14));
-            let todoDeleted = this.parentNode.textContent.slice(0, -14);
-            modalRemove.textContent = `WAIT! Are you sure you want to give up on ${todoDeleted}!`;
-            this.parentNode.id = `${todoDeleted}`;
-          };
-          function removeTodo2(){
-            let indexNum = todoItems[0].listItems.indexOf(modalRemove.textContent.slice(42, -1));
-            let todoDeleted = modalRemove.textContent.slice(42, -1);
-            todoItems[0].listItems.splice(indexNum, 1);
-            let todoDeletedListItem = document.querySelector(`#${todoDeleted}`);
-            todoDeletedListItem.remove();
-            let jsonString = JSON.stringify(todoItems);
-            localStorage.setItem("todoItems", jsonString);
-          };
-          function finishedTodo(){
-            this.parentNode.remove();
-            let indexNum = todoItems[0].listItems.indexOf(this.parentNode.textContent.slice(0, -14));
-            let todoFinished = this.parentNode.textContent.slice(0, -14);
-            const modal = document.querySelector("#yayText");
-            modal.textContent = `YAY! You finished ${todoFinished}!`;
-            todoItems[0].listItems.splice(indexNum, 1);
-            let jsonString = JSON.stringify(todoItems);
-            localStorage.setItem("todoItems", jsonString);
-            fireworks.play();
-            /*let newFinishedTodo = document.createElement("li");
-            newFinishedTodo.textContent = `${todoFinished}`;
-            finishedTodoList.appendChild(newFinishedTodo);
-            finishedTodos.push(todoFinished);
-            let jsonStringFinished = JSON.stringify(finishedTodos);
-            localStorage.setItem("FinishedTodos", jsonStringFinished);*/
-          };
-          inputBtn.addEventListener("click", addTodo);
-          deleteBtn.addEventListener("click", removeTodo2);
-          document.addEventListener('DOMContentLoaded', listTodo);
+            });
+          });
+          deleteBtn.addEventListener("click", removeTodo1);
         </script>
     </body>
 </html>
